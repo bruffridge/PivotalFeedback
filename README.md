@@ -3,6 +3,9 @@ PivotalFeedback
 
 A plugin that allows users to submit feedback including bugs and features to Pivotal Tracker.
 
+[**See it LIVE!**](http://bruffridge.github.com/PivotalFeedback)<br />
+This demo is a view of the `gh-pages` branch of the repository. It is automatically updated as commits are made to the branch.
+
 ### Tools used
 
 It uses basic HTML, CSS that borrows from Twitter's Bootstrap and compiles with LESS, and javascript powered by jQuery. The backend is powered by vanilla PHP 5.3.
