@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Feedback Demo</title>
+<link rel="stylesheet" type="text/css" href="styles/main.css" />
+
+<!--[if lt IE 8]><link rel="stylesheet" type="text/css" href="styles/main_ie7.min.css" /><![endif]-->
+    <!--[if IE 8]><link rel="stylesheet" type="text/css" href="styles/main_ie8.min.css" /><![endif]-->
+    <!--[if gt IE 8]><!--><link rel="stylesheet" type="text/css" href="styles/main.min.css" /><!--<![endif]-->
+
+</head>
+<body>
+  <div id="bodyContent">
+    <a class="feedbackLink" href="#">Got Feedback?</a>
+    
+    <div class="modal hide" id="feedbackDialog" role="dialog" aria-labelledby="feedbackTitle">
+      <div class="modal-header">
+        <button type="button" class="close" aria-label="Close">&times;</button>
+        <h3 id="feedbackTitle">Got Feedback?</h3>
+      </div>
+      <form name="feedbackForm" id="feedbackForm" action="" method="post">
+      <div class="modal-body">
+
+        <div class="formItem first">
+          <label for="selType">Issue type</label>
+          <select name="selType" id="selType">
+            <option value="bug">Bug</option>
+            <option value="feature">Feature Request</option>
+            <option value="chore">Other</option>
+          </select>
+          <span id="msg-selType" class="err">&nbsp;</span>
+        </div>
+
+        <div class="formItem newline">
+          <label for="txtaDescription">What happened?</label>
+          <textarea name="txtaDescription" id="txtaDescription" class="width400 height6em" maxlength="2000"></textarea>
+          <span id="msg-txtaDescription" class="err">&nbsp;</span>
+        </div>
+
+        <div class="formItem newline">
+          <label for="txtaSteps">Steps needed to reproduce this bug</label>
+          <textarea name="txtaSteps" id="txtaSteps" class="width400 height6em" maxlength="2000"></textarea>
+          <span id="msg-txtaSteps" class="err">&nbsp;</span>
+        </div>
+
+        <div class="formItem newline">
+          *Your name, system specs, time, and URL will be submitted automatically.
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="submit" name="submit" value="Leave feedback" id="feedbackBtn" class="btn btn-primary">Leave feedback</button>
+        <button type="button" name="cancel" value="Cancel" id="cancelBtn" class="btn">Cancel</button>
+      </div>
+      </form>
+    </div>
+    
+  </div>
+<script type="text/javascript" src="scripts/jquery-1.7.2.js" language="javascript"></script>
+<script type="text/javascript" src="scripts/bootstrap-modal.js" language="javascript"></script>
+<script type="text/javascript" src="scripts/jquery.trap.min.js" language="javascript"></script>
+<script type="text/javascript" src="scripts/Util.js" language="javascript"></script>
+<script type="text/javascript" src="scripts/NodeManager.js" language="javascript"></script>
+<script type="text/javascript" src="scripts/feedback.js" language="javascript"></script>
+</body>
+</html>
