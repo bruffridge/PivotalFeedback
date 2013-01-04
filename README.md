@@ -5,6 +5,7 @@ A plugin that allows users to submit feedback including bugs and features to Piv
 
 [**See it LIVE!**](http://bruffridge.github.com/PivotalFeedback)<br />
 This demo is a view of the `gh-pages` branch of the repository. It is automatically updated as commits are made to the branch.
+Actually submitting the form will produce an error since it requires submitting an AJAX request to remoteInterface.php on a php server. But it will give you a look at what the UI looks like.
 
 ### Tools used
 
