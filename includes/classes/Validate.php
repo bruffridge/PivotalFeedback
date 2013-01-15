@@ -5,13 +5,14 @@
   {
     
     static public function http_request( 
-        $verb = 'GET',             /* HTTP Request Method (GET and POST supported) */ 
+        $verb = 'GET',             /* HTTP Request Method (GET, POST, and DELETE supported) */ 
         $ip,                       /* Target IP/Hostname */ 
         $port = 80,                /* Target TCP port */ 
         $uri = '/',                /* Target URI */ 
         $getdata = array(),        /* HTTP GET Data ie. array('var1' => 'val1', 'var2' => 'val2') */ 
-        $postdata = array(),       /* HTTP POST Data ie. array('var1' => 'val1', 'var2' => 'val2') */ 
+        $postdata = array(),       /* HTTP POST Data ie. array('var1' => 'val1', 'var2' => 'val2') */
         $xmldata = NULL,
+        $formdata = array(),
         $cookie = array(),         /* HTTP Cookie Data ie. array('var1' => 'val1', 'var2' => 'val2') */ 
         $custom_headers = array(), /* Custom HTTP headers ie. array('Referer: http://localhost/ */ 
         $timeout = 1,           /* Socket timeout in seconds */ 
@@ -19,11 +20,12 @@
         $res_hdr = false           /* Include HTTP response headers */ 
         ) 
     {
-      $ret = ''; 
+      $ret = '';
       $verb = strtoupper($verb); 
       $cookie_str = ''; 
       $getdata_str = count($getdata) ? '?' : ''; 
-      $postdata_str = ''; 
+      $postdata_str = '';
+      $boundary = "AaB03x";
 
       foreach ($getdata as $k => $v) 
                   $getdata_str .= urlencode($k) .'='. urlencode($v) . '&'; 
@@ -35,21 +37,21 @@
           $cookie_str .= urlencode($k) .'='. urlencode($v) .'; '; 
 
       $crlf = "\r\n";
-      $req = $verb .' '. $uri . $getdata_str .' HTTP/1.1' . $crlf; 
+      $req = $verb .' '. $uri . $getdata_str .' HTTP/1.1' . $crlf;
       $req .= 'Host: '. $ip . $crlf; 
       $req .= 'User-Agent: Mozilla/5.0 Firefox/3.6.12' . $crlf; 
       $req .= 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' . $crlf; 
       $req .= 'Accept-Language: en-us,en;q=0.5' . $crlf; 
       $req .= 'Accept-Encoding: gzip,deflate' . $crlf; 
       $req .= 'Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7' . $crlf;
-      $req .= 'Connection: close' . $crlf; 
+      $req .= 'Connection: close' . $crlf;
 
-      foreach ($custom_headers as $k => $v) 
+      foreach ($custom_headers as $k => $v)
           $req .= $k .': '. $v . $crlf; 
 
       if (!empty($cookie_str)) 
           $req .= 'Cookie: '. substr($cookie_str, 0, -2) . $crlf; 
-
+      
       if ($verb == 'POST' && !empty($postdata_str)) 
       { 
           $postdata_str = substr($postdata_str, 0, -1); 
@@ -59,9 +61,23 @@
       }
       else if ($verb == 'POST' && !empty($xmldata))
       {
-          $req .= 'Content-type: application/xml' . $crlf; 
+          $req .= 'Content-type: application/xml' . $crlf;
           $req .= 'Content-Length: '. strlen($xmldata) . $crlf . $crlf; 
           $req .= $xmldata;
+      }
+      else if ($verb == 'POST' && !empty($formdata))
+      {
+        $req .= 'Content-Type: multipart/form-data; boundary=' . $boundary . $crlf;
+        $reqTmp = '--'.$boundary.$crlf;
+        foreach($formdata as $key => $value) {
+          if($key === 'formVal') {
+            $reqTmp .= $crlf;
+          }
+          $reqTmp .= $value.$crlf;
+        }
+        $reqTmp .= '--'.$boundary.'--';
+        $req .= 'Content-Length: '. strlen($reqTmp) . $crlf . $crlf;
+        $req .= $reqTmp;
       }
       else $req .= $crlf; 
 

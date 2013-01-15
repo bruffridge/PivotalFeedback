@@ -21,6 +21,5 @@ The only modifications you need to make are in remoteInterface.php and Util.js. 
 
 It will communicate with Pivotal over SSL but if you want to speed up performance change the parameter "443" in the ```http_request``` function to 80. If you have SSL only set in Pivotal though 80 won't work.
 
-### Coming soon...
+**Update 1/15/2013:** You can now add an attachment to your pivotal story through the plugin. It uses [XMLHttpRequest 2](http://caniuse.com/#feat=xhr2)'s [FormData](https://developer.mozilla.org/en-US/docs/DOM/XMLHttpRequest/FormData) object to upload the file using AJAX which is only supported by newer browers.
 
-Add attachments to feedback.

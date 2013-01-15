@@ -3,7 +3,7 @@
     <button type="button" class="close" aria-label="Close">&times;</button>
     <h3 id="feedbackTitle">Got Feedback?</h3>
   </div>
-  <form name="feedbackForm" id="feedbackForm" action="" method="post">
+  <form name="feedbackForm" id="feedbackForm" action="" method="post" enctype="multipart/form-data">
   <div class="modal-body">
 
     <div class="formItem first">
@@ -26,6 +26,12 @@
       <label for="<?php echo $fieldNames['feedbackForm']['steps']; ?>">Steps needed to reproduce this bug</label>
       <textarea name="<?php echo $fieldNames['feedbackForm']['steps']; ?>" id="<?php echo $fieldNames['feedbackForm']['steps']; ?>" class="width400 height6em" maxlength="2000"></textarea>
       <span id="msg-<?php echo $fieldNames['feedbackForm']['steps']; ?>" class="err">&nbsp;</span>
+    </div>
+    
+    <div class="formItem newline">
+      <label for="<?php echo $fieldNames['feedbackForm']['attachment']; ?>">Attachment <span class="ro">(jpg, gif, png, pdf)</span></label>
+      <input class="clear-both block" type="file" name="<?php echo $fieldNames['feedbackForm']['attachment']; ?>" id="<?php echo $fieldNames['feedbackForm']['attachment']; ?>" class="width250" />
+      <span id="msg-<?php echo $fieldNames['feedbackForm']['attachment']; ?>" class="err">&nbsp;</span>
     </div>
     
     <div class="formItem newline">

@@ -33,6 +33,33 @@
           throw new feedback\Exception('Invalid feedback type.', feedback\Exception::AJAX);
       }
       
+      // Process Uploaded Attachment
+      if($_FILES[$fieldNames['attachment']]["tmp_name"] != "") {
+        $newfilename = preg_replace('/(\.pdf|\.jpg|\.jpeg|\.png|\.gif)$/', '', $_FILES[$fieldNames['attachment']]["name"]);
+        $newfilename = preg_replace('/\W/', '', $newfilename);
+        $userfile_tmp = $_FILES[$fieldNames['attachment']]["tmp_name"];
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime = finfo_file($finfo, $userfile_tmp);
+
+        switch($mime) {
+          case 'image/jpeg':
+            $fileExt = '.jpg';
+            break;
+          case 'image/gif':
+            $fileExt = '.gif';
+            break;
+          case 'image/png':
+            $fileExt = '.png';
+            break;
+          case 'application/pdf':
+            $fileExt = '.pdf';
+            break;
+          default:
+            //wrong file type.
+            $valErrors['attachment'] = 'Only .jpg, .gif, .png, and .pdf files allowed.';
+        }
+      }
+      
       if(!empty($valErrors)) {
         try {
           throw new feedback\UIException('One or more errors occurred', $valErrors);
@@ -90,12 +117,46 @@ _User-Agent:_    '.$userAgent;
       $xmldata = '<story><story_type>' . $formVals[$fieldNames['type']] . '</story_type><name>' . date('[n/j/Y g:i:sa]', time()) . ' ' . htmlspecialchars($name) . '</name><description>' . htmlspecialchars($desc) . '</description></story>';
       
       //todo: replace project_id with yours.
-      $httpResponse = feedback\Validate::http_request('POST', 'www.pivotaltracker.com', 443, '/services/v3/projects/project_id/stories', array(), array(), $xmldata, array(), $custom_headers, 1, false, false);
+      $httpResponse = feedback\Validate::http_request('POST', 'www.pivotaltracker.com', 443, '/services/v3/projects/project_id/stories', array(), array(), $xmldata, array(), array(), $custom_headers, 1, false, false);
       
       //check the response for a single <story> node. This indicates success.
       $xmlParser = xml_parser_create();
       xml_parse_into_struct($xmlParser, $httpResponse, $xmlResp);
       if($xmlResp[0]['tag'] == 'STORY') {
+        if($xmlResp[1]['tag'] != 'ID' || !preg_match('/^[0-9]+$/', $xmlResp[1]['value'])){
+          throw new feedback\Exception('An error occurred while submitting feedback.', feedback\Exception::AJAX);
+        }
+        
+        // story successfully submitted, now upload the attachment if there is one.
+        if(isset($newfilename)) {
+          $storyId = $xmlResp[1]['value'];
+          $formdata = array();
+          $formdata[] = 'Content-Disposition: form-data; name="Filedata"; filename="'.$newfilename.$fileExt.'"';
+          $formdata[] = 'Content-Type: '.$_FILES[$fieldNames['attachment']]["type"];
+          $formdata['formVal'] = file_get_contents($_FILES[$fieldNames['attachment']]["tmp_name"]);
+          //todo: replace project_id with yours.
+          $httpResponse = feedback\Validate::http_request('POST', 'www.pivotaltracker.com', 443, '/services/v3/projects/project_id/stories/'.$xmlResp[1]['value'].'/attachments', array(), array(), NULL, $formdata, array(), $custom_headers, 1, false, false);
+
+          $xmlParser = xml_parser_create();
+          xml_parse_into_struct($xmlParser, $httpResponse, $xmlResp);
+
+          $isError = true;
+
+          foreach($xmlResp as $value) {
+            if($value['tag'] == 'STATUS' && strtolower($value['value']) == 'pending') {
+              $isError = false;
+              break;
+            }
+          }
+
+          if($xmlResp[0]['tag'] != 'ATTACHMENT' || $isError) {
+            //if the attachment upload is successful than send back a success msg. If it's not send back a failure message, and delete the story.
+            //delete story.
+            //todo: replace project_id with yours.
+            $httpResponse = feedback\Validate::http_request('DELETE', 'www.pivotaltracker.com', 443, '/services/v3/projects/project_id/stories/'.$storyId, array(), array(), NULL, array(), array(), $custom_headers, 1, false, false);
+            throw new feedback\Exception('An error occurred while submitting feedback attachment.', feedback\Exception::AJAX);
+          }
+        }
         exit(prefixJSON(2, json_encode('Feedback successfully submitted.')));
       }
 
