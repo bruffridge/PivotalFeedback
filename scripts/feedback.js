@@ -10,12 +10,20 @@ $(function() {
       $("#feedbackDialog.modal").trap();
 
       //reset the dialog
+      
+      if(window.FormData === undefined) {
+        //show a msg with a link to caniuse for supported browsers instead of file input.
+        $('#'+feedbackFieldNames['attachment']).replaceWith("<span>Your browser doesn't support attachments. " + '<a href="http://caniuse.com/#feat=xhr2" target="_blank">Here are some that do.</a></span>');
+      }
+      
       $('#feedbackMsg').remove();
       $("#feedbackDialog .modal-body .formItem").show();
       $('#feedbackBtn').show();
       $('#feedbackDialog.modal button[name="cancel"]').html('Cancel');
       $("#feedbackDialog .modal-footer .footerRight").remove();
       $('#feedbackDialog input[type="text"], #feedbackDialog textarea').val('');
+      var control = $('#feedbackDialog input[type="file"]').first();
+      control.replaceWith( control.val('').clone( true ) );
       $('#feedbackDialog select').val($('#feedbackDialog select option:first').val());
       $('#feedbackDialog input.ui-widget').val('');
       $('#feedbackDialog input[type="checkbox"]').attr('checked', false);
@@ -95,10 +103,32 @@ $(function() {
       }
     });
 
+    var formData = {method: 'feedback', args: [o, feedbackFieldNames]};
+    var ctype = 'application/x-www-form-urlencoded; charset=UTF-8';
+    var pdata = true;
+    
+    if(window.FormData !== undefined) {
+      ctype = false;
+      pdata = false;
+      formData = new FormData();
+      formData.append("method", "feedback");
+      $.each(o, function(key, value){
+        formData.append("args[0]["+key+"]", value);
+      });
+      
+      $.each(feedbackFieldNames, function(key, value){
+        formData.append("args[1]["+key+"]", value);
+      });
+      
+      formData.append(feedbackFieldNames['attachment'], $('#'+feedbackFieldNames['attachment'])[0].files[0]);
+    }
+
     $.ajax({
       url: Util.rootdir + 'remoteInterface.php',
       type: 'POST',
-      data: {method: 'feedback', args: [o, feedbackFieldNames]},
+      data: formData,
+      contentType: ctype,
+      processData: pdata,
       dataType: 'json',
       dataFilter: Util.parseJSON,
       error: function(jqXHR, textStatus, errorThrown) {
